@@ -1,4 +1,4 @@
-# Bank App (Web UI)
+# SecureVault
 
 This project upgrades the original CLI bank to a small web app with:
 
