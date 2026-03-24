@@ -1,0 +1,29 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Database/Store
+store.json
+*.db
+
+# Environment variables
+.env
+
+# Backups
+*.bak
+*.tmp
+
+# Documents (non-project related)
+*.docx
+*.pdf
+why go functions are called first class functions.docx
+classwork 1.docx
+classwork 2.docx
+Unit1-2.pdf
+"Strings in GO.pdf"
+
+# Docker
+.docker/

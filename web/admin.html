@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal – SecureVault</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/static/style.css?v=3" rel="stylesheet">
+    <style>
+        body {
+            background: #0a0a12;
+        }
+
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .admin-tab {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #9ca3af;
+            border-radius: 10px !important;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .admin-tab.active,
+        .admin-tab:hover {
+            background: rgba(0, 225, 255, 0.12) !important;
+            color: #00e1ff !important;
+            border-color: rgba(0, 225, 255, 0.3) !important;
+        }
+
+        .detail-panel {
+            border-left: 3px solid #00ff66;
+            background: rgba(0, 255, 102, 0.015);
+        }
+
+        .tx-badge {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .section-tab {
+            display: none;
+        }
+
+        .section-tab.active {
+            display: block;
+        }
+
+        .user-row:hover {
+            background: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 10px;
+            padding: 8px 16px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(0, 225, 255, 0.4);
+            background: rgba(0, 225, 255, 0.05);
+        }
+
+        .search-input option {
+            background-color: #212529;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-white">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-25 py-3"
+        style="background:rgba(10,10,18,0.95);backdrop-filter:blur(20px);">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand text-white fw-bold d-flex align-items-center gap-2" href="/static/admin.html">
+                <div
+                    style="width:32px;height:32px;background:linear-gradient(135deg,#ff3366,#ff6b35);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-shield-alt text-white" style="font-size:0.85rem;"></i>
+                </div>
+                SecureVault <span class="badge ms-2"
+                    style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:0.65rem;font-weight:600;">ADMIN</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small" id="admin-time"></span>
+                <a href="/static/dashboard.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3"><i
+                        class="fas fa-arrow-left me-1"></i>Dashboard</a>
+                <button class="btn btn-sm btn-outline-light rounded-pill px-4" id="refresh-btn"><i
+                        class="fas fa-sync-alt me-2"></i>Refresh</button>
+                <button class="btn btn-sm btn-outline-danger rounded-pill px-3" id="logout-btn"><i
+                        class="fas fa-sign-out-alt me-1"></i>Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-start mb-4 fade-in-up">
+            <div>
+                <span class="badge mb-2"
+                    style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);"><i
+                        class="fas fa-user-shield me-1"></i>Administrator Access</span>
+                <h2 class="fw-bold mb-1">Platform Overview</h2>
+                <p class="text-muted mb-0">Real-time metrics across all banking modules</p>
+            </div>
+            <div class="text-end">
+                <div class="text-muted small">Last updated: <span id="last-updated">—</span></div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4 fade-in-up">
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(0,225,255,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-users text-info"></i>
+                    </div>
+                    <div class="fw-bold fs-4" id="stat-users">0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Total Users</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-arrow-down text-success"></i>
+                    </div>
+                    <div class="fw-bold fs-5 text-success" id="stat-deposits">₹0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Deposits</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-arrow-up text-danger"></i>
+                    </div>
+                    <div class="fw-bold fs-5 text-danger" id="stat-withdrawals">₹0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Withdrawals</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-hand-holding-usd text-warning"></i>
+                    </div>
+                    <div class="fw-bold fs-4" id="stat-loans">0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Active Loans</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(255,193,7,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-credit-card text-warning"></i>
+                    </div>
+                    <div class="fw-bold fs-4" id="stat-cards">0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Cards Issued</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="glass-panel p-3 text-center stat-card">
+                    <div class="mb-2"
+                        style="width:40px;height:40px;border-radius:10px;background:rgba(139,92,246,0.12);margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-piggy-bank" style="color:#a78bfa;"></i>
+                    </div>
+                    <div class="fw-bold fs-5" style="color:#a78bfa;" id="stat-net">₹0</div>
+                    <small class="text-muted" style="font-size:0.65rem;text-transform:uppercase;">Net Flow</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="d-flex gap-2 mb-4 flex-wrap">
+            <button class="admin-tab active" onclick="switchTab('users')"><i class="fas fa-users me-2"></i>User
+                Management</button>
+            <button class="admin-tab" onclick="switchTab('cards')"><i class="fas fa-credit-card me-2"></i>Cards</button>
+            <button class="admin-tab" onclick="switchTab('loans')"><i class="fas fa-hand-holding-usd me-2"></i>All
+                Loans</button>
+            <button class="admin-tab" onclick="switchTab('bills')"><i class="fas fa-file-invoice-dollar me-2"></i>Bill
+                Payments</button>
+            <button class="admin-tab" onclick="switchTab('corporate')"><i
+                    class="fas fa-briefcase me-2"></i>Corporate</button>
+            <button class="admin-tab" onclick="switchTab('transactions')"><i class="fas fa-exchange-alt me-2"></i>All
+                Transactions</button>
+        </div>
+
+        <!-- TAB: USERS -->
+        <div id="tab-users" class="section-tab active">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-users me-2 text-info"></i>User Accounts</h5>
+                <input class="search-input" id="user-search" type="text" placeholder="Search by name or account..."
+                    oninput="filterUsers()" style="width:280px;">
+            </div>
+            <div class="glass-panel overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg: transparent;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <th class="py-3 px-4 text-muted small text-uppercase" style="letter-spacing:1px;">ID
+                                </th>
+                                <th class="py-3 px-4 text-muted small text-uppercase" style="letter-spacing:1px;">
+                                    Account No</th>
+                                <th class="py-3 px-4 text-muted small text-uppercase" style="letter-spacing:1px;">Name
+                                </th>
+                                <th class="py-3 px-4 text-muted small text-uppercase text-end"
+                                    style="letter-spacing:1px;">Balance</th>
+                                <th class="py-3 px-4 text-muted small text-uppercase" style="letter-spacing:1px;">Cards
+                                </th>
+                                <th class="py-3 px-4 text-muted small text-uppercase" style="letter-spacing:1px;">Loans
+                                </th>
+                                <th class="py-3 px-4 text-muted small text-uppercase text-center"
+                                    style="letter-spacing:1px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted"><i
+                                        class="fas fa-circle-notch fa-spin me-2"></i>Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: CARDS -->
+        <div id="tab-cards" class="section-tab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-credit-card me-2 text-info"></i>Card Requests</h5>
+                <div class="d-flex gap-2">
+                    <select class="search-input" id="card-filter" onchange="loadAllCards()"
+                        style="width:160px;padding:6px 12px;">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="glass-panel p-0 overflow-hidden">
+                <div id="cards-table-body" class="p-4">
+                    <p class="text-muted text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: LOANS -->
+        <div id="tab-loans" class="section-tab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-hand-holding-usd me-2 text-warning"></i>All Loans</h5>
+                <div class="d-flex gap-2">
+                    <select class="search-input" id="loan-filter" onchange="loadAllLoans()"
+                        style="width:160px;padding:6px 12px;">
+                        <option value="">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+            <div class="glass-panel p-0 overflow-hidden">
+                <div id="loans-table-body" class="p-4">
+                    <p class="text-muted text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: BILLS -->
+        <div id="tab-bills" class="section-tab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar me-2 text-danger"></i>Bill Payment Records
+                </h5>
+                <div class="d-flex gap-2">
+                    <select class="search-input" id="bill-filter" onchange="loadAllBills()"
+                        style="width:160px;padding:6px 12px;">
+                        <option value="">All Bills</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                    </select>
+                </div>
+            </div>
+            <div class="glass-panel p-0 overflow-hidden">
+                <div id="bills-table-body" class="p-4">
+                    <p class="text-muted text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: CORPORATE -->
+        <div id="tab-corporate" class="section-tab">
+            <h5 class="fw-bold mb-3"><i class="fas fa-briefcase me-2 text-warning"></i>Corporate Trade Finance</h5>
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="glass-panel p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase"
+                            style="font-size:0.75rem;letter-spacing:1px;">All Trade Instruments</h6>
+                        <div id="corp-table-body">
+                            <p class="text-muted text-center py-4"><i
+                                    class="fas fa-circle-notch fa-spin me-2"></i>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-panel p-4 mb-3">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase"
+                            style="font-size:0.75rem;letter-spacing:1px;">Summary</h6>
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Letters of
+                                Credit</span><span class="fw-bold" id="corp-lc-count">—</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Bank
+                                Guarantees</span><span class="fw-bold" id="corp-bg-count">—</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Pending
+                                Approvals</span><span class="fw-bold text-warning" id="corp-pending-count">—</span>
+                        </div>
+                        <div class="d-flex justify-content-between"><span class="text-muted small">Total
+                                Exposure</span><span class="fw-bold text-success" id="corp-total-exposure">₹0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: TRANSACTIONS -->
+        <div id="tab-transactions" class="section-tab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-exchange-alt me-2" style="color:#00e1ff;"></i>All Platform
+                    Transactions</h5>
+                <select class="search-input" id="tx-type-filter" onchange="loadAllTransactions()"
+                    style="width:180px;padding:6px 12px;">
+                    <option value="">All Types</option>
+                    <option value="deposit">Deposits</option>
+                    <option value="withdraw">Withdrawals</option>
+                    <option value="transfer">Transfers</option>
+                    <option value="loan_deposit">Loan Disbursements</option>
+                </select>
+            </div>
+            <div class="glass-panel p-0 overflow-hidden">
+                <div id="tx-table-body" class="p-4">
+                    <p class="text-muted text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Approval Checklist Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true" style="backdrop-filter: blur(10px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-white" style="background: rgba(15,15,25,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
+                    <h5 class="modal-title fw-bold" id="approvalModalLabel"><i class="fas fa-clipboard-check me-2 text-success"></i>Regulatory Approval</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-muted mb-4 small" id="approvalModalDesc">Complete the checklist to approve the application.</p>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="checkKyc" onchange="checkApprovalReqs()">
+                        <label class="form-check-label ms-2" for="checkKyc">
+                            Identity/KYC Verification Confirmed
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="checkCredit" onchange="checkApprovalReqs()">
+                        <label class="form-check-label ms-2" for="checkCredit">
+                            Credit Score / Risk Assessment Passed
+                        </label>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="checkTnc" onchange="checkApprovalReqs()">
+                        <label class="form-check-label ms-2" for="checkTnc">
+                            Terms & Conditions Disclosed
+                        </label>
+                    </div>
+
+                    <input type="hidden" id="approvalTargetId">
+                    <input type="hidden" id="approvalTargetType">
+
+                    <button id="btnApproveFinal" class="btn btn-success w-100 fw-bold py-2 shadow" style="border-radius: 12px;" disabled onclick="submitApproval()">
+                        <i class="fas fa-check-circle me-1"></i> Confirm Approval
+                    </button>
+                    <button class="btn btn-outline-danger w-100 fw-bold py-2 mt-2" style="border-radius: 12px; border:none;" onclick="submitRejection()">
+                        <i class="fas fa-times-circle me-1"></i> Reject Application
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div id="alert" class="alert position-fixed bottom-0 end-0 m-4 d-none fw-bold shadow-lg text-white" role="alert"
+        style="z-index:1050;border:none;border-radius:14px;backdrop-filter:blur(10px);min-width:220px;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/admin.js?v=7"></script>
+</body>
+
+</html>

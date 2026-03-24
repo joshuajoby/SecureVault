@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault - Premium Digital Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/static/style.css" rel="stylesheet">
+    <style>
+        /* Landing-page specific overrides */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .btn-vault {
+            background: linear-gradient(135deg, #00ff66 0%, #00cc52 100%);
+            color: #000;
+            border: none;
+            font-weight: 800;
+            letter-spacing: 2px;
+            font-size: 0.95rem;
+            padding: 16px 40px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+        }
+
+        .btn-vault:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 0 40px rgba(0, 255, 102, 0.5);
+            color: #000;
+        }
+
+        .btn-explore {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.95rem;
+            padding: 14px 40px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .btn-explore:hover {
+            border-color: #00ff66;
+            color: #00ff66;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .feature-card {
+            transition: all 0.4s ease;
+            border-radius: 0 !important;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 255, 102, 0.1);
+        }
+
+        .security-icon-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #00ff66, #00e1ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(5deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .card-mockup {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top" style="backdrop-filter: blur(20px); background: rgba(0,0,0,0.5);">
+        <div class="container">
+            <a class="navbar-brand text-white" href="/" style="font-family: 'Space Grotesk', sans-serif;">
+                <i class="fas fa-layer-group me-2" style="color: #00ff66;"></i>SECUREVAULT.
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars text-white"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link text-white me-3 text-uppercase"
+                            style="font-size: 0.85rem; letter-spacing: 1px;" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link text-white me-3 text-uppercase"
+                            style="font-size: 0.85rem; letter-spacing: 1px;" href="#security">Security</a></li>
+                    <li class="nav-item"><a class="nav-link text-white me-3 text-uppercase"
+                            style="font-size: 0.85rem; letter-spacing: 1px;" href="#stats">Stats</a></li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light rounded-pill px-4 text-uppercase"
+                            style="font-size: 0.85rem; letter-spacing: 1px;" href="/auth.html">Sign In</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <!-- Three.js WebGL Canvas Container -->
+        <canvas id="webgl-canvas" class="position-absolute top-0 start-0 w-100 h-100"
+            style="z-index: 0; pointer-events: none; mix-blend-mode: screen;"></canvas>
+
+        <!-- Noise Overlay -->
+        <div
+            style="position: absolute; top:0; left:0; right:0; bottom:0; background: url('data:image/svg+xml,%3Csvg viewBox=%270 0 200 200%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.85%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27 opacity=%270.04%27/%3E%3C/svg%3E'); pointer-events: none; z-index: 1;">
+        </div>
+
+        <div class="container position-relative z-2">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="display-1 fw-bold text-uppercase m-0 p-0"
+                        style="line-height: 0.85; font-size: clamp(4rem, 8vw, 10rem);">
+                        <span class="d-block">ABSOLUTE</span>
+                        <span class="d-block text-muted">FINANCIAL</span>
+                        <span class="d-block" style="color: #00ff66;">CONTROL.</span>
+                    </h1>
+
+                    <p class="lead text-muted mt-5 mb-5 pe-lg-5"
+                        style="max-width: 500px; font-size: 1.1rem; line-height: 1.8;">
+                        Experience borderless banking with zero hidden fees. Smart analytics, instant transfers, and
+                        military-grade security—all inside a beautifully designed digital perimeter.
+                    </p>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <a href="/auth.html" class="btn-vault text-decoration-none text-center">
+                            INITIALIZE VAULT <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#features" class="btn-explore text-decoration-none text-center">
+                            EXPLORE MATRIX
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Floating Credit Card -->
+                <div class="col-lg-5 mt-5 mt-lg-0 position-relative">
+                    <div class="floating" style="animation-duration: 6s;">
+                        <div class="glass-panel card-mockup p-4 d-inline-block text-start"
+                            style="transform: rotate(5deg); width: 100%; max-width: 400px;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <i class="fas fa-microchip fs-3 text-white"></i>
+                                <i class="fas fa-wifi text-muted"></i>
+                            </div>
+                            <h5 class="text-muted mb-1 text-uppercase" style="font-size: 0.7rem; letter-spacing: 2px;">
+                                Black Card</h5>
+                            <h3 class="mb-4 text-white" style="font-family: 'Space Grotesk', sans-serif;">4092 8812 3451
+                                9000</h3>
+                            <div class="d-flex justify-content-between text-muted small text-uppercase"
+                                style="font-size: 0.7rem; letter-spacing: 1px;">
+                                <span class="text-white">AUTHORIZED USER</span>
+                                <span>12/28</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-3 position-absolute shadow-lg card-mockup"
+                            style="bottom: -40px; left: -10%; transform: rotate(-10deg); z-index: -1; max-width: 350px;">
+                            <div class="p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <i class="fas fa-microchip fs-4" style="color: #00ff66;"></i>
+                                    <span class="badge rounded-pill px-3 py-2"
+                                        style="background: rgba(0,255,102,0.15); color: #00ff66; font-size: 0.65rem;">PLATINUM</span>
+                                </div>
+                                <h5 class="text-muted mb-0" style="font-size: 0.65rem; letter-spacing: 2px;">•••• ••••
+                                    •••• 7291</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 position-relative"
+        style="background: #050505; border-top: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+
+        <div class="container py-5 my-5 position-relative z-1">
+            <div class="row mb-5">
+                <div class="col-lg-8">
+                    <span class="badge rounded-pill px-4 py-2 mb-4 d-inline-block"
+                        style="background: rgba(0,255,102,0.1); color: #00ff66; border: 1px solid rgba(0,255,102,0.2); letter-spacing: 2px; font-size: 0.7rem;">
+                        <i class="fas fa-bolt me-2"></i>CORE FEATURES
+                    </span>
+                    <h2 class="display-3 fw-bold mb-3 text-uppercase">Engineered for <br><span
+                            class="text-muted">Extremes.</span></h2>
+                    <p class="text-muted lead" style="max-width: 600px;">Every feature is built from the ground up with
+                        performance, security, and elegance in mind.</p>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="glass-panel feature-card text-start p-5">
+                        <div class="security-icon-wrap" style="background: rgba(0, 255, 102, 0.08);">
+                            <i class="fas fa-bolt" style="color: #00ff66;"></i>
+                        </div>
+                        <h3 class="mb-3 text-uppercase fs-5">Zero Latency</h3>
+                        <p class="text-muted m-0" style="line-height: 1.8;">Instant deposits, real-time balance updates,
+                            and sub-second global transfers executed perfectly.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-panel feature-card text-start p-5">
+                        <div class="security-icon-wrap" style="background: rgba(0, 225, 255, 0.08);">
+                            <i class="fas fa-shield-alt" style="color: #00e1ff;"></i>
+                        </div>
+                        <h3 class="mb-3 text-uppercase fs-5">Military Grade</h3>
+                        <p class="text-muted m-0" style="line-height: 1.8;">Multi-layer encryption, real-time fraud
+                            monitoring, and biometric authentication protect your assets.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-panel feature-card text-start p-5"
+                        style="background: rgba(0, 255, 102, 0.05); border-color: rgba(0,255,102,0.2);">
+                        <div class="security-icon-wrap" style="background: rgba(255, 176, 58, 0.08);">
+                            <i class="fas fa-brain" style="color: #ffb03a;"></i>
+                        </div>
+                        <h3 class="mb-3 text-uppercase fs-5">Omniscient Data</h3>
+                        <p class="text-muted m-0" style="line-height: 1.8;">Auto-categorized spending, deep
+                            insights, and highly predictive budget forecasting powered by AI.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Features Row -->
+            <div class="row g-4 mt-2">
+                <div class="col-md-6">
+                    <div class="glass-panel feature-card text-start p-5">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="security-icon-wrap mb-0" style="background: rgba(255, 51, 102, 0.08);">
+                                <i class="fas fa-exchange-alt" style="color: #ff3366;"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-0 text-uppercase fs-5">Multi-Rail Transfers</h3>
+                                <span class="text-muted small">NEFT • RTGS • IMPS • UPI</span>
+                            </div>
+                        </div>
+                        <p class="text-muted m-0" style="line-height: 1.8;">Send money through any rail with one unified
+                            interface. Cross-border payments, real-time settlements, and instant confirmations.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-panel feature-card text-start p-5">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="security-icon-wrap mb-0" style="background: rgba(138, 43, 226, 0.08);">
+                                <i class="fas fa-chart-line" style="color: #8a2be2;"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-0 text-uppercase fs-5">Wealth Engine</h3>
+                                <span class="text-muted small">FD • Mutual Funds • SIP • Demat</span>
+                            </div>
+                        </div>
+                        <p class="text-muted m-0" style="line-height: 1.8;">Grow your wealth with fixed deposits, mutual
+                            funds, systematic investment plans, and a full demat portfolio — all managed from one
+                            dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section id="security" class="py-5" style="background: #000; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="container py-5 my-5">
+            <div class="row mb-5">
+                <div class="col-lg-8">
+                    <span class="badge rounded-pill px-4 py-2 mb-4 d-inline-block"
+                        style="background: rgba(0,225,255,0.1); color: #00e1ff; border: 1px solid rgba(0,225,255,0.2); letter-spacing: 2px; font-size: 0.7rem;">
+                        <i class="fas fa-lock me-2"></i>SECURITY
+                    </span>
+                    <h2 class="display-3 fw-bold mb-3 text-uppercase">Fort Knox <br><span class="text-muted">Grade
+                            Protection.</span></h2>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="glass-panel p-4 text-center h-100">
+                        <div class="security-icon-wrap mx-auto" style="background: rgba(0,255,102,0.08);">
+                            <i class="fas fa-fingerprint" style="color: #00ff66;"></i>
+                        </div>
+                        <h5 class="text-uppercase mb-3">Biometric Auth</h5>
+                        <p class="text-muted small mb-0">Fingerprint and face recognition for seamless, secure access.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-4 text-center h-100">
+                        <div class="security-icon-wrap mx-auto" style="background: rgba(0,225,255,0.08);">
+                            <i class="fas fa-key" style="color: #00e1ff;"></i>
+                        </div>
+                        <h5 class="text-uppercase mb-3">AES-256 Encryption</h5>
+                        <p class="text-muted small mb-0">End-to-end encryption on every transaction and data point.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-4 text-center h-100">
+                        <div class="security-icon-wrap mx-auto" style="background: rgba(255,51,102,0.08);">
+                            <i class="fas fa-user-shield" style="color: #ff3366;"></i>
+                        </div>
+                        <h5 class="text-uppercase mb-3">Fraud Detection</h5>
+                        <p class="text-muted small mb-0">AI-powered real-time fraud monitoring with instant alerts.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-4 text-center h-100">
+                        <div class="security-icon-wrap mx-auto" style="background: rgba(255,176,58,0.08);">
+                            <i class="fas fa-server" style="color: #ffb03a;"></i>
+                        </div>
+                        <h5 class="text-uppercase mb-3">ISO 27001</h5>
+                        <p class="text-muted small mb-0">Certified infrastructure with SOC 2 compliance built-in.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="py-5" style="background: #050505; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="container py-5 my-5 text-center">
+            <span class="badge rounded-pill px-4 py-2 mb-4 d-inline-block"
+                style="background: rgba(138,43,226,0.1); color: #8a2be2; border: 1px solid rgba(138,43,226,0.2); letter-spacing: 2px; font-size: 0.7rem;">
+                <i class="fas fa-chart-bar me-2"></i>NUMBERS
+            </span>
+            <h2 class="display-4 fw-bold mb-5 text-uppercase">Built at Scale.</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="glass-panel p-5">
+                        <div class="stat-number">99.99%</div>
+                        <p class="text-muted text-uppercase small mt-3 mb-0" style="letter-spacing: 2px;">Uptime SLA</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-5">
+                        <div class="stat-number">&lt;50ms</div>
+                        <p class="text-muted text-uppercase small mt-3 mb-0" style="letter-spacing: 2px;">Response Time
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-5">
+                        <div class="stat-number">256bit</div>
+                        <p class="text-muted text-uppercase small mt-3 mb-0" style="letter-spacing: 2px;">Encryption</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="glass-panel p-5">
+                        <div class="stat-number">24/7</div>
+                        <p class="text-muted text-uppercase small mt-3 mb-0" style="letter-spacing: 2px;">Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5" style="background: #000; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="container py-5 my-5 text-center">
+            <h2 class="display-4 fw-bold mb-4 text-uppercase">Ready to Take Control?</h2>
+            <p class="text-muted lead mb-5 mx-auto" style="max-width: 600px;">Join thousands of users who trust
+                SecureVault for their financial operations. Open your vault in under 60 seconds.</p>
+            <a href="/auth.html" class="btn-vault text-decoration-none d-inline-block">
+                OPEN YOUR VAULT <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 border-top border-secondary border-opacity-25" style="background: #020202;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <a class="navbar-brand text-white text-uppercase text-decoration-none" href="#"
+                        style="font-family: 'Space Grotesk', sans-serif;">
+                        <i class="fas fa-layer-group me-2" style="color: #00ff66;"></i>SecureVault.
+                    </a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <p class="text-muted small mb-0 text-uppercase" style="letter-spacing: 1px;">&copy; 2026 SecureVault
+                        Inc.</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="#" class="text-muted me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-muted me-3"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-muted me-3"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-muted"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        // Inline WebGL particles for landing page
+        const canvas = document.getElementById('webgl-canvas');
+        if (canvas && typeof THREE !== 'undefined') {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const particleCount = 2000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const c1 = new THREE.Color('#00ff66');
+            const c2 = new THREE.Color('#ffffff');
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = (Math.random() - 0.5) * 100;
+                positions[i + 2] = (Math.random() - 0.5) * 50;
+                const mc = c1.clone().lerp(c2, Math.random());
+                colors[i] = mc.r; colors[i + 1] = mc.g; colors[i + 2] = mc.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.6, sizeAttenuation: true });
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            let targetX = 0, targetY = 0;
+            document.addEventListener('mousemove', (e) => {
+                targetX = (e.clientX / window.innerWidth) * 2 - 1;
+                targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            const clock = new THREE.Clock();
+            const tick = () => {
+                const t = clock.getElapsedTime();
+                particles.rotation.y = t * 0.05;
+                particles.rotation.x = t * 0.02;
+                camera.position.x += (targetX * 5 - camera.position.x) * 0.05;
+                camera.position.y += (targetY * 5 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+                requestAnimationFrame(tick);
+            };
+            tick();
+        }
+
+        // GSAP fade-in animations
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray('.glass-panel').forEach(el => {
+            gsap.from(el, {
+                y: 60,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out',
+                scrollTrigger: { trigger: el, start: 'top 85%' }
+            });
+        });
+    </script>
+</body>
+
+</html>

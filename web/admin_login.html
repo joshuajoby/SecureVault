@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - SecureVault</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+
+<body class="bg-dark text-white d-flex align-items-center justify-content-center"
+    style="min-height: 100vh; overflow: hidden;">
+    <div class="glass-panel p-5 text-center shadow-lg"
+        style="max-width: 450px; width: 100%; border: 1px solid rgba(0, 255, 102, 0.2);">
+        <div class="mb-4">
+            <i class="fas fa-user-shield fa-4x mb-3" style="color: var(--accent-blue)"></i>
+            <h2 class="fw-bold text-uppercase" style="letter-spacing: 2px;">Admin Portal</h2>
+            <p class="text-muted small">Authorized personnel only</p>
+        </div>
+        <form id="admin-login-form">
+            <div class="form-floating mb-4">
+                <input type="password" class="form-control bg-dark text-white border-secondary fw-bold text-center fs-4"
+                    id="adminCode" placeholder="Access Code" required style="letter-spacing: 5px;">
+                <label for="adminCode" class="text-muted"><i class="fas fa-lock me-2"></i>Access Code</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-3 mt-2 fw-bold text-uppercase"
+                style="background: var(--accent-blue); color: black; border: none; letter-spacing: 2px;" id="loginBtn">
+                Initialize Override <i class="fas fa-terminal border-start border-dark ps-2 ms-2"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Alert Toast -->
+    <div id="alert" class="alert position-fixed bottom-0 end-0 m-4 d-none fw-bold shadow-lg text-white" role="alert"
+        style="z-index: 1050; border:none; border-radius: 12px; backdrop-filter: blur(10px);"></div>
+
+    <script>
+        document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminCode').value;
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Authenticating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_number: 0, password: password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = '/static/admin.html';
+                } else {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    const a = document.getElementById('alert');
+                    a.className = `alert alert-danger position-fixed bottom-0 end-0 m-4 shadow-lg text-white`;
+                    a.style.background = 'rgba(239, 68, 68, 0.9)';
+                    a.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>${data.error || 'Invalid access code'}`;
+                    a.classList.remove('d-none');
+                    setTimeout(() => a.classList.add('d-none'), 3000);
+                }
+            } catch (err) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

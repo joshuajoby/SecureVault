@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault - Authenticate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/static/style.css?v=5" rel="stylesheet">
+</head>
+
+<body class="bg-dark p-0 m-0 overflow-hidden" style="min-height: 100vh;">
+    <div class="row g-0 h-100 position-absolute w-100">
+        <!-- Left Side: Abstract Premium Branding -->
+        <div class="col-lg-6 d-none d-lg-flex position-relative align-items-center justify-content-center overflow-hidden"
+            style="background: #020202;">
+            <!-- Subtle Noise -->
+            <div class="position-absolute top-0 start-0 w-100 h-100"
+                style="background: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' opacity=\'0.05\'/%3E%3C/svg%3E'); pointer-events: none; z-index: 1;">
+            </div>
+
+            <!-- WebGL Context for Auth -->
+            <canvas id="auth-webgl-canvas" class="position-absolute top-0 start-0 w-100 h-100"
+                style="z-index: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.8;"></canvas>
+
+            <div class="position-relative z-2 text-start p-5" style="max-width: 80%;">
+                <a class="navbar-brand text-white d-inline-block mb-5" href="/"
+                    style="font-family: 'Space Grotesk', sans-serif; font-size: 2rem;">
+                    <i class="fas fa-layer-group text-gradient me-2"></i>SECUREVAULT.
+                </a>
+                <h1 class="display-3 fw-bold text-uppercase" style="line-height: 1; letter-spacing: -2px;">Welcome
+                    to<br><span class="text-muted">The Apex.</span></h1>
+                <p class="lead text-muted mt-4" style="max-width: 400px; font-size: 1.1rem; line-height: 1.6;">
+                    Authenticate to access your encrypted terminal. Experience zero-latency transfers, AI-driven
+                    insights, and absolute financial control.
+                </p>
+                <div class="mt-5 d-flex gap-3 align-items-center">
+                    <div class="d-flex align-items-center justify-content-center"
+                        style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <span class="text-uppercase text-muted small fw-bold" style="letter-spacing: 2px;">AES-256
+                        Encrypted</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: The Form -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center position-relative"
+            style="background: #0a0a0a; z-index: 10;">
+            <!-- Glow Effect behind form -->
+            <div class="position-absolute"
+                style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 255, 102, 0.05) 0%, rgba(0,0,0,0) 70%); filter: blur(40px); z-index: 0; pointer-events: none;">
+            </div>
+
+            <a href="/" class="btn btn-outline-light position-absolute top-0 end-0 m-4 z-3 rounded-pill"
+                style="border-color: rgba(255,255,255,0.1); font-size: 0.8rem; letter-spacing: 1px;">
+                <i class="fas fa-arrow-left me-2"></i>RETURN
+            </a>
+
+            <div class="auth-form-wrapper position-relative z-1 w-100" style="max-width: 480px; padding: 2rem;">
+
+                <div id="alert-toast"
+                    style="position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:9999;min-width:320px;max-width:480px;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;opacity:0;pointer-events:none;"
+                    aria-live="polite">
+                    <div id="alert" class="d-flex align-items-center gap-3 px-4 py-3 rounded-3 shadow-lg fw-semibold"
+                        style="background:rgba(16,185,129,0.95);color:#fff;border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(16px);font-size:0.95rem;">
+                    </div>
+                </div>
+
+                <!-- Custom Tabs -->
+                <div class="d-flex mb-5 border-bottom border-secondary border-opacity-25 relative">
+                    <button
+                        class="flex-grow-1 bg-transparent border-0 text-white pb-3 fw-bold text-uppercase position-relative auth-tab active"
+                        id="login-tab" data-target="login-view"
+                        style="letter-spacing: 1.5px; opacity: 1; transition: opacity 0.3s;">
+                        Initialize
+                        <div class="tab-indicator position-absolute bottom-0 start-0 w-100"
+                            style="height: 2px; background: var(--accent-blue);"></div>
+                    </button>
+                    <button
+                        class="flex-grow-1 bg-transparent border-0 text-white pb-3 fw-bold text-uppercase position-relative auth-tab"
+                        id="register-tab" data-target="register-view"
+                        style="letter-spacing: 1.5px; opacity: 0.4; transition: opacity 0.3s;">
+                        Create Vault
+                        <div class="tab-indicator position-absolute bottom-0 start-0 w-100 d-none"
+                            style="height: 2px; background: var(--accent-blue);"></div>
+                    </button>
+                </div>
+
+                <!-- Views Container -->
+                <div class="position-relative" style="min-height: 400px;">
+
+                    <!-- Login View -->
+                    <div id="login-view" class="auth-view position-absolute w-100 fade-in-up">
+                        <div class="mb-5">
+                            <h2 class="fw-bold mb-2">Welcome Back.</h2>
+                            <p class="text-muted small">Enter your credentials to decrypt your terminal.</p>
+                        </div>
+
+                        <form id="login-form">
+                            <div class="form-floating mb-4">
+                                <input type="number" class="form-control bg-transparent text-white border-secondary"
+                                    id="login-account" placeholder="Account Number" required
+                                    style="border-radius: 12px;">
+                                <label class="text-muted"><i class="fas fa-hashtag me-2"></i>Account Number</label>
+                            </div>
+
+                            <div class="form-floating mb-5 position-relative">
+                                <input type="password" class="form-control bg-transparent text-white border-secondary"
+                                    id="login-pass" placeholder="Password" required style="border-radius: 12px;">
+                                <label class="text-muted"><i class="fas fa-lock me-2"></i>Master Password</label>
+                                <button type="button"
+                                    class="btn position-absolute top-50 end-0 translate-middle-y text-muted border-0"
+                                    onclick="togglePassword('login-pass')" style="box-shadow: none;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+
+                            <button type="submit"
+                                class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase text-dark mb-4 position-relative overflow-hidden"
+                                style="letter-spacing: 1px; background: var(--accent-blue);" id="login-btn">
+                                <span class="position-relative z-1">Access Vault <i
+                                        class="fas fa-arrow-right ms-2"></i></span>
+                            </button>
+
+                            <div class="position-relative my-4 text-center">
+                                <hr class="border-secondary opacity-25">
+                                <span class="position-absolute top-50 start-50 translate-middle px-3 text-muted small"
+                                    style="background: #0a0a0a; letter-spacing: 1px;">OR</span>
+                            </div>
+
+                            <a href="/api/oauth/google"
+                                class="btn btn-outline-light w-100 py-3 rounded-pill text-white d-flex justify-content-center align-items-center"
+                                style="border-color: rgba(255,255,255,0.1);">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23EA4335' d='M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z'/%3E%3Cpath fill='%234285F4' d='M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z'/%3E%3Cpath fill='%23FBBC05' d='M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z'/%3E%3Cpath fill='%2334A853' d='M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z'/%3E%3C/svg%3E"
+                                    alt="G" style="width: 18px;" class="me-3">
+                                <span class="text-uppercase small fw-bold" style="letter-spacing: 1px;">Continue with
+                                    Google</span>
+                            </a>
+                        </form>
+                    </div>
+
+                    <!-- Register View -->
+                    <div id="register-view" class="auth-view position-absolute w-100 d-none">
+                        <div class="mb-4">
+                            <h2 class="fw-bold mb-2">Initiate Setup.</h2>
+                            <p class="text-muted small">Establish your secure digital presence.</p>
+                        </div>
+
+                        <form id="register-form">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control bg-transparent text-white border-secondary"
+                                    id="reg-account" placeholder="Account Number" required style="border-radius: 12px;">
+                                <label class="text-muted"><i class="fas fa-fingerprint me-2"></i>Unique Identifier
+                                    (Numbers)</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control bg-transparent text-white border-secondary"
+                                    id="reg-name" placeholder="Legal Name" required style="border-radius: 12px;">
+                                <label class="text-muted"><i class="fas fa-user me-2"></i>Legal Full Name</label>
+                            </div>
+
+                            <div class="form-floating mb-3 position-relative">
+                                <input type="password" class="form-control bg-transparent text-white border-secondary"
+                                    id="reg-pass" placeholder="Password" required style="border-radius: 12px;">
+                                <label class="text-muted"><i class="fas fa-key me-2"></i>Strong Password</label>
+                                <button type="button"
+                                    class="btn position-absolute top-50 end-0 translate-middle-y text-muted border-0"
+                                    onclick="togglePassword('reg-pass')" style="box-shadow: none;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+
+                            <div class="form-floating mb-4">
+                                <input type="number" class="form-control bg-transparent text-white border-secondary"
+                                    id="reg-balance" placeholder="Initial Deposit" min="0"
+                                    style="border-radius: 12px; appearance: none; -moz-appearance: textfield;">
+                                <label class="text-muted"><i class="fas fa-rupee-sign me-2"></i>Initial
+                                    Capitalization</label>
+                            </div>
+
+                            <button type="submit"
+                                class="btn btn-outline-light w-100 py-3 rounded-pill fw-bold text-uppercase position-relative overflow-hidden"
+                                style="letter-spacing: 1px; border-color: rgba(255,255,255,0.2);" id="register-btn">
+                                <span class="position-relative z-1">Construct Vault</span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Use the common animations script for cursor and abstract canvas if we want, or inline for auth specific -->
+
+    <script>
+        // Tab switching logic with GSAP animations
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginView = document.getElementById('login-view');
+        const registerView = document.getElementById('register-view');
+
+        function switchTab(activeBtn, inactiveBtn, viewToShow, viewToHide) {
+            // Update buttons
+            activeBtn.style.opacity = '1';
+            activeBtn.querySelector('.tab-indicator').classList.remove('d-none');
+            inactiveBtn.style.opacity = '0.4';
+            inactiveBtn.querySelector('.tab-indicator').classList.add('d-none');
+
+            // Update views
+            gsap.to(viewToHide, {
+                opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+                    viewToHide.classList.add('d-none');
+                    viewToShow.classList.remove('d-none');
+                    gsap.fromTo(viewToShow, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
+                }
+            });
+        }
+
+        loginTab.addEventListener('click', () => switchTab(loginTab, registerTab, loginView, registerView));
+        registerTab.addEventListener('click', () => switchTab(registerTab, loginTab, registerView, loginView));
+
+        // Background subtle Three.js abstraction for Auth left side
+        const canvas = document.getElementById('auth-webgl-canvas');
+        if (canvas) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+            renderer.setSize(window.innerWidth / 2, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 700;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0x00ff66,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, material);
+            scene.add(particlesMesh);
+
+            camera.position.z = 3;
+
+            // Mouse interaction
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            const windowHalfX = window.innerWidth / 4;
+            const windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            });
+
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+
+                targetX = mouseX * 0.001;
+                targetY = mouseY * 0.001;
+
+                particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+                particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+                particlesMesh.rotation.z += 0.001;
+
+                // Float effect
+                particlesMesh.position.y = Math.sin(elapsedTime * 0.5) * 0.2;
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                const width = window.innerWidth > 991 ? window.innerWidth / 2 : window.innerWidth;
+                camera.aspect = width / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, window.innerHeight);
+            });
+        }
+    </script>
+    <script src="/static/auth.js?v=2"></script>
+</body>
+
+</html>
